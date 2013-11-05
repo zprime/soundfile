@@ -118,7 +118,7 @@ classdef soundfile
     count = ftell( sfh );                       %done
     message = ferror( sfh );                    %done
     set( sfh, sval );
-    gval = get( sfh );
+    value = get( sfh, property );               %done
     types = listfiletypes( sfh );               %done
     types = listdatatypes( sfh );               %done
     disp( sfh );                                %done
