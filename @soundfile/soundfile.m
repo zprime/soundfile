@@ -110,18 +110,19 @@ classdef soundfile
     end
     
     % External methods (m files)
-    fopen( sfh, mode );
+    fopen( sfh, mode );                         %done
     Y = fread( sfh, size, format );
     count = fwrite( sfh, Y );
-    fclose( sfh );
+    fclose( sfh );                              %done
     status = fseek( sfh, offset, origin );
     count = ftell( sfh );
-    message = ferror( sfh );
+    message = ferror( sfh );                    %done
     set( sfh, sval );
     gval = get( sfh );
     fts = listfiletypes( sfh );
     fs = listdatatypes( sfh );
-    s = size( sfh );
+    disp( sfh );                                %done
+    s = size( sfh );                            %done
     n = numel( sfh );
     l = length( sfh );
   end
