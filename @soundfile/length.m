@@ -1,20 +1,20 @@
-% Return the size of the file in [ channels, frames ]
+% Return the length (number of frames) of the file
 %
 % Usage:
-% c = s.size;
-% c = size(s);
+% l = s.length;
+% l = length(s);
 %
 % v0.1 2013-11-05
 %
 % Copyright (c) 2013, Zebb Prime
 % License appended to source
 
-function s = size(this)
+function l = length(this)
   % If not open, return an error
   if isempty( this.sfo )
     error('soundfile:size:notOpen','File not open');
   else
-    s = [ this.channels, sndfile_interface( this.sfds.cmd.frames, this.sfo ) ];
+    l = sndfile_interface( this.sfds.cmd.frames, this.sfo );
   end
 end
 
