@@ -120,7 +120,7 @@ classdef soundfile
     set( sfh, sval );
     gval = get( sfh );
     types = listfiletypes( sfh );               %done
-    fs = listdatatypes( sfh );
+    types = listdatatypes( sfh );               %done
     disp( sfh );                                %done
     s = size( sfh );                            %done
     n = numel( sfh );                           %done
