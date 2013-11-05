@@ -6,6 +6,9 @@
 % listfiletypes(s);
 % s.listfiletypes;
 %
+% Note that not all combinations of file and data type are supported. To
+% see
+%
 % v0.1 2013-11-05
 %
 % Copyright (c) 2013, Zebb Prime
