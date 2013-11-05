@@ -119,12 +119,12 @@ classdef soundfile
     message = ferror( sfh );                    %done
     set( sfh, sval );
     gval = get( sfh );
-    fts = listfiletypes( sfh );
+    types = listfiletypes( sfh );               %done
     fs = listdatatypes( sfh );
     disp( sfh );                                %done
     s = size( sfh );                            %done
-    n = numel( sfh );
-    l = length( sfh );
+    n = numel( sfh );                           %done
+    l = length( sfh );                          %done
   end
   
   % Private methods (c++ calls)
