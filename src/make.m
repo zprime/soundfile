@@ -12,7 +12,7 @@ function make
 %% Default paths for the sndfile library
 if nargin == 0
   if ispc
-    sflibpath = 'C:\Program Files\something';
+    sflibpath = 'C:\Program Files\Mega-Nerd\libsndfile';
   elseif ismac
     sflibpath = '/usr/local/';
   else
