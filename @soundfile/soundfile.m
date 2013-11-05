@@ -98,10 +98,10 @@ classdef soundfile
     Y = fread( sfh, size, format );
     count = fwrite( sfh, Y );
     fclose( sfh );                              %done
-    status = fseek( sfh, offset, origin );
+    status = fseek( sfh, offset, origin );      %done
     count = ftell( sfh );                       %done
     message = ferror( sfh );                    %done
-    set( sfh, property, value );
+    set( sfh, varargin );                       %done
     value = get( sfh, property );               %done
     types = listfiletypes( sfh );               %done
     types = listdatatypes( sfh );               %done

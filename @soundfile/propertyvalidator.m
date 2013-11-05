@@ -43,14 +43,14 @@ function valid = propertyvalidator( this, caller, property, value )
       end
       
     case 'channels'
-      valid = isnumeric(value) && isscalar(value) && isreal(value) && (floor(value)>0);
+      valid = isnumeric(value) && isscalar(value) && isreal(value) && isfinite(value) && (floor(value)>0);
       if ~valid
         error(['soundfile:',caller,':InvalidChannels'],...
         'Channels must be real, scalar value greater than zero.');
       end
       
     case 'rate'
-      valid = isnumeric(value) && isscalar(value) && isreal(value) && (floor(value)>0);
+      valid = isnumeric(value) && isscalar(value) && isreal(value) && isfinite(value) && (floor(value)>0);
       if ~valid
         error(['soundfile:',caller,':InvalidRate'],...
         'Rate must be real, scalar value greater than zero.');
