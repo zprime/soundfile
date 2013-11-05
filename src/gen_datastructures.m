@@ -9,14 +9,15 @@
 % Copyright (c) 2013 Zebb Prime
 % License information appended to source
 
+%%
 function sfds = gen_datastructures( sndlibpath )
-  [sfds.filetypes,sfds.datatypes,sfds.endiantypes,sfds.mode] ...
+  [sfds.mask,sfds.filetypes,sfds.datatypes,sfds.endiantypes,sfds.mode] ...
       = gen_formats( sndlibpath );
   sfds.cmd = gen_commands;
   return;
 end
 
-% Generate the commands data structure
+%% Generate the commands data structure
 function cmd = gen_commands
   % Open the file
   fh = fopen( 'sndfile_interface.hpp', 'r' );
@@ -28,16 +29,16 @@ function cmd = gen_commands
   end
   
   % Extract commands
-  temp = regexp( sfh, 'SFI_CMD_(\w*)\s+=\s+0x(\d+),\s+/\*\s(.*?)\s\*/', 'tokens' );
+  temp = regexp( sfh, 'SFI_CMD_(\w*)\s+=\s+0x([0-9a-fA-F]+),\s+/\*\s(.*?)\s\*/', 'tokens' );
   
   % Create the command structure
   for ii=1:numel(temp)
-    cmd.(lower(temp{ii}{1})) = str2double(temp{ii}{2});
+    cmd.(lower(temp{ii}{1})) = hex2dec(temp{ii}{2});
   end
 end
 
-% Generate the types strucutres from sndfile.h
-function [filetypes,datatypes,endiantypes,mode] ...
+%% Generate the types strucutres from sndfile.h
+function [mask,filetypes,datatypes,endiantypes,mode] ...
     = gen_formats( sndlibpath )
   % Open the file
   fh = fopen( [sndlibpath,filesep,'include',filesep,'sndfile.h'], 'r' );
@@ -51,8 +52,18 @@ function [filetypes,datatypes,endiantypes,mode] ...
   % Scan for all enum entries
   enums = regexp( sfh, 'enum\s*{(.*?)}','tokens' );
   
-  % Extract formats
-  temp = regexp( enums{1}{1}, 'SF_FORMAT_(\w+)\s*=\s*0x(\d+),\s*/\*\s(.*?)\s\*/', 'tokens' );
+  %% Extract the masks
+  temp = regexp( enums{1}{1}, 'SF_FORMAT_(\w+)MASK\s*=\s*0x([0-9a-fA-F]+)','tokens' );
+  
+  % Process the masks
+  mask = struct;
+  for ii=1:size(temp,2)
+    mask.(lower(temp{ii}{1})) = uint32( hex2dec( temp{ii}{2} ) );
+  end
+  
+  
+  %% Extract formats
+  temp = regexp( enums{1}{1}, 'SF_FORMAT_(\w+)\s*=\s*0x([0-9a-fA-F]+),\s*/\*\s(.*?)\s\*/', 'tokens' );
   
   % Process the formats
   formats = cell( numel(temp), 3 );
@@ -63,12 +74,11 @@ function [filetypes,datatypes,endiantypes,mode] ...
   end
   
   % Split into major format and subformat
-  filetypes = formats( logical( ([formats{:,2}] > hex2dec('ffff') ) ...
-    .* ([formats{:,2}] <= hex2dec('fff0000') ) ), : );
-  datatypes = formats( ([formats{:,2}]) < hex2dec('ffff') , : );
+  filetypes = formats( logical( bitand( mask.type, [formats{:,2}] ) ) , : );
+  datatypes = formats( logical( bitand( mask.sub, [formats{:,2}] ) ), : );
   
   % Now scan the endianness
-  temp = regexp( enums{1}{1}, 'SF_ENDIAN_(\w+)\s*=\s*0x(\d+),\s*/\*\s(.*?)\s\*/', 'tokens' );
+  temp = regexp( enums{1}{1}, 'SF_ENDIAN_(\w+)\s*=\s*0x([0-9a-fA-F]+),\s*/\*\s(.*?)\s\*/', 'tokens' );
   endiantypes = cell( numel(temp), 3 );
   for ii=1:size(temp,2)
     endiantypes{ii,1} = lower( temp{ii}{1} );
@@ -77,7 +87,7 @@ function [filetypes,datatypes,endiantypes,mode] ...
   end
   
   % Now scan the modes
-  temp = regexp( sfh, 'SFM_(\w+)\s*=\s*0x(\d+),', 'tokens' );
+  temp = regexp( sfh, 'SFM_(\w+)\s*=\s*0x([0-9a-fA-F]+),', 'tokens' );
   mode = struct;
   for ii=1:size(temp,2)
     mode.( lower( temp{ii}{1} ) ) = hex2dec( temp{ii}{2} );

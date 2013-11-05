@@ -44,12 +44,12 @@ classdef soundfile
   % Private but visible properties
   properties( SetAccess = private )
     % Properties of the file
-    filename = '';
-    mode = 0;
-    filetype = 0;
-    format = 0;
-    channels = 0;
-    rate = 0;
+    filename;
+    mode;
+    filetype;
+    datatype;
+    channels;
+    rate;
   end
   
   % Public methods (m-file calls)
@@ -71,7 +71,7 @@ classdef soundfile
       ip.addRequired( 'filename', @ischar );
       ip.addParamValue( 'mode', 'r', @(x) any( strcmpi(x,{'r','w'}) ) );
       ip.addParamValue( 'filetype', 'wav', @ischar );
-      ip.addParamValue( 'format', 'double', @iscahr );
+      ip.addParamValue( 'datatype', 'double', @ischar );
       ip.addParamValue( 'channels', 0, @(x) isscalar(x) && isnumeric(x) && isreal(x) );
       ip.addParamValue( 'rate', 0, @(x) isscalar(x) && isnumeric(x) && isreal(x) );
       ip.parse( varargin{:} );
@@ -79,7 +79,7 @@ classdef soundfile
       this.filename = ip.Results.filename;
       this.mode = ip.Results.mode;
       this.filetype = ip.Results.filetype;
-      this.format = ip.Results.format;
+      this.datatype = ip.Results.datatype;
       this.channels = ip.Results.channels;
       this.rate = ip.Results.rate;
       
@@ -93,10 +93,10 @@ classdef soundfile
             'Invalid filetype. Valid file types are:\n%s', listfiletypes(this) );
         end
       end
-      if ~isdefault( 'format' )
+      if ~isdefault( 'datatype' )
         if ~any( strcmpi( this.format, this.sfds.formats(:,1) ) )
-          error('soundfile:soundfile:invalidformat',...
-            'Invalid format. Valid formats are:\n%s', listformats(this) );
+          error('soundfile:soundfile:invaliddatatype',...
+            'Invalid datatype. Valid data formats are:\n%s', listdatatypes(this) );
         end
       end
       
@@ -110,7 +110,7 @@ classdef soundfile
     end
     
     % External methods (m files)
-    fopen( sfh );
+    fopen( sfh, mode );
     Y = fread( sfh, size, format );
     count = fwrite( sfh, Y );
     fclose( sfh );
@@ -120,7 +120,10 @@ classdef soundfile
     set( sfh, sval );
     gval = get( sfh );
     fts = listfiletypes( sfh );
-    fs = listformats( sfh );
+    fs = listdatatypes( sfh );
+    s = size( sfh );
+    n = numel( sfh );
+    l = length( sfh );
   end
   
   % Private methods (c++ calls)
