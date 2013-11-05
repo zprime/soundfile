@@ -1,24 +1,24 @@
-% Display information about the SoundFile object
+% Close a sound object file
 %
 % Usage:
-% s.disp;
-% disp(s);
+% s.fclose;
+% fclose(s);
+% fopen(s,mode);
 %
 % v0.1 2013-11-05
 %
 % Copyright (c) 2013, Zebb Prime
 % License appended to source
-function disp( this )
-  fprintf(1,'SoundFile object\n');
-  fprintf(1,'File name: %s\n', this.filename );
-  fprintf(1,'File type: %s\n', this.filetype );
-  fprintf(1,'Data type: %s\n', this.datatype );
-  fprintf(1,'Mode: %s\n', this.mode );
-  if isempty(this.sfo)
-    fprintf(1,'Status: closed\n');
-  else
-    fprintf(1,'Status: open\n');
+
+function fclose(this)
+  % State check
+  if isempty( this.sfo )
+    error('soundfile:fclose:AlreadyClosed','File is already closed');
   end
+  
+  % Issue the close command, and delete the object handle
+  sndfile_interface( this.sfds.cmd.del, this.sfo );
+  this.sfo = [];
 end
 
 % Copyright (c) 2013, Zebb Prime
