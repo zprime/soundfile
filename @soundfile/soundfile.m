@@ -1,15 +1,52 @@
-% Sound file reading/writing using the libsndfile library
-classdef soundfile < handle
+% SoundFile reading/writing using the libsndfile library
+%
+% SoundFile is implemented as an object with the standard file calls,
+% e.g. fopen, fclose, etc.
+% To see a list of methods or properties, run:
+%   methods('soundfile')
+% or
+%   properties('soundfile');
+% Please see the list of compatible file types and formats at the
+% <a href="http://www.mega-nerd.com/libsndfile/">libsndfile homepage</a>.
+%
+% Basic read example:
+%   sf = soundfile('testin.wav');
+%   fopen( sf, 'r' );
+%   [Y,Fs] = fread( sf, inf );
+%   fclose( sf );
+%   delete( sf );
+%
+% Basic write example:
+%   sf = soundfile('testout.wav','channels',2,'filetype','wav',...
+%           'format','pcm_24','rate',44100);
+%   fopen( sf, 'w' );
+%   fwrite( sf, Y );
+%   fclose( sf );
+%   delete( sf );
+%
+% v0.1 2013-11-05
+%
+% Copyright (c) 2013, Zebb Prime
+% License appended to source
+classdef soundfile
   
-  % Private properties
-  properties (Hidden = true, SetAccess = private )
+  % Private and hidden properties
+  properties ( Hidden = true, SetAccess = private )
     % SoundFile data structure (contains command and format codes)
     sfds;
     % SoundFile handle (private)
     sfo = [];
+    % Index to where we are in the file, since libsndfile doesn't seem to
+    % have a ftell command.
+    fpos = 0;
+  end
+  
+  % Private but visible properties
+  properties( SetAccess = private )
     % Properties of the file
-    fname = '';
+    filename = '';
     mode = 0;
+    filetype = 0;
     format = 0;
     channels = 0;
     rate = 0;
@@ -24,36 +61,43 @@ classdef soundfile < handle
       temp = load( [fileparts( mfilename('fullpath') ),filesep,'sfds.mat'] );
       this.sfds = temp.sfds;
       
+      % Make sure there is at least one argument
+      if nargin <1
+        error('soundfile:soundfile:noName','Filename must be specified');
+      end
+      
+      % Parse all inputs using inputParser
       ip = inputParser;
-      ip.addRequired( 'fname', @ischar );
-      ip.addParamValue( 'format', {'rf64','double','little'} );
+      ip.addRequired( 'filename', @ischar );
       ip.addParamValue( 'mode', 'r', @(x) any( strcmpi(x,{'r','w'}) ) );
+      ip.addParamValue( 'filetype', 'wav', @ischar );
+      ip.addParamValue( 'format', 'double', @iscahr );
       ip.addParamValue( 'channels', 0, @(x) isscalar(x) && isnumeric(x) && isreal(x) );
       ip.addParamValue( 'rate', 0, @(x) isscalar(x) && isnumeric(x) && isreal(x) );
       ip.parse( varargin{:} );
       
-      this.fname = ip.Results.fname;
+      this.filename = ip.Results.filename;
       this.mode = ip.Results.mode;
+      this.filetype = ip.Results.filetype;
+      this.format = ip.Results.format;
+      this.channels = ip.Results.channels;
+      this.rate = ip.Results.rate;
       
-      % If writing, validate the format. If reading, file has not been
-      % opened yet.
-      if strcmpi( ip.Results.mode, 'w' )
-        sff_parse( this, ip.Results.format );
-        
-        % Test the channels
-        if ( ~isempty( ip.Results.UsingDefaults ) ) ...
-            && strcmpi( ip.Results.UsingDefaults, 'channels' )
-          error('soundfile:soundfile:NoChannels','Channels must be specified when writing');
+      % Helper isdefault function for inputParser
+      isdefault = @(x) any( strcmpi( ip.UsingDefaults, x ) );
+      
+      % Further validate any manually entered fields.
+      if ~isdefault( 'filetype' )
+        if ~any( strcmpi( this.filetype, this.sfds.filetypes(:,1) ) )
+          error('soundfile:soundfile:invalidfiletype',...
+            'Invalid filetype. Valid file types are:\n%s', listfiletypes(this) );
         end
-        this.channels = floor( ip.Results.channels );
-        
-        % Test the sample rate
-        if ( ~isempty( ip.Results.UsingDefaults ) ) ...
-            && strcmpi( ip.Results.UsingDefaults, 'rate' )
-          error('soundfile:soundfile:NoRate','Rate must be specified when writing');
+      end
+      if ~isdefault( 'format' )
+        if ~any( strcmpi( this.format, this.sfds.formats(:,1) ) )
+          error('soundfile:soundfile:invalidformat',...
+            'Invalid format. Valid formats are:\n%s', listformats(this) );
         end
-        this.rate = ip.Results.rate;
-        
       end
       
     end
@@ -61,7 +105,7 @@ classdef soundfile < handle
     % Destructor method
     function delete( this )
       if ~isempty( this.sfo );
-        this.sfo = sf_fclose( this );
+        fclose( this );
       end
     end
     
@@ -71,15 +115,12 @@ classdef soundfile < handle
     count = fwrite( sfh, Y );
     fclose( sfh );
     status = fseek( sfh, offset, origin );
+    count = ftell( sfh );
     message = ferror( sfh );
     set( sfh, sval );
     gval = get( sfh );
-    
-  end
-  
-  % Private methods (m file calls)
-  methods (Hidden = true)
-    sff_parse( this, in_format );
+    fts = listfiletypes( sfh );
+    fs = listformats( sfh );
   end
   
   % Private methods (c++ calls)
@@ -87,3 +128,28 @@ classdef soundfile < handle
     varargout = sndfile_interface( varargin )
   end
 end
+
+% Copyright (c) 2013, Zebb Prime
+% All rights reserved.
+%
+% Redistribution and use in source and binary forms, with or without
+% modification, are permitted provided that the following conditions are
+% met:
+%
+%     * Redistributions of source code must retain the above copyright
+%       notice, this list of conditions and the following disclaimer.
+%     * Redistributions in binary form must reproduce the above copyright
+%       notice, this list of conditions and the following disclaimer in
+%       the documentation and/or other materials provided with the distribution
+%
+% THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+% AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+% IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+% ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+% LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+% CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+% SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+% INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+% CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+% ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+% POSSIBILITY OF SUCH DAMAGE.
