@@ -23,17 +23,14 @@ end
 
 % Input checking
 if nargin == 1
-  mode = this.mode;
-end
-this.mode = mode;
-
-% Check to make sure it's either read or write
-if ~strcmpi( mode, {'r','w'} )
-  error('soundfile:fopen:wrongMode','Mode must be either ''r'' or ''w''.');
+  this.mode;
+else
+  propertyvalidator( this, 'fopen', 'mode', mode );
+  this.mode = mode;
 end
 
 % Different behaviour for reading and writing
-switch lower(mode)
+switch lower(this.mode)
   case 'r'
     % Open the file for reading
     this.sfo = sndfile_interface( this.sfds.cmd.new, this.sfds.mode.read, 0, 0, 0 );
@@ -54,35 +51,28 @@ switch lower(mode)
     this.datatype = this.sfds.datatypes{I,2};
     
   case 'w'
-    % Vertify file type and get the format code
+    % Verify all properties before calling the library
+    propertyvalidator( this, 'fopen', 'filename', this.filename );
+    
+    % Verify file type and get the format code
+    propertyvalidator( this, 'fopen', 'filetype', this.filetype );
     I = strcmpi( this.filetype, this.sfds.filetypes(:,1) );
-    if ~any( I )
-      error('soundfile:fopen:invalidfiletype',...
-        'Invalid filetype. Valid file types are:\n%s', listfiletypes(this) );
-    end
     ftf = this.sfds.filetypes{I,2};
     if numel(ftf) ~= 1
       error('soundfile:fopen:wrongnumfiletypesfound','Incorrect number of matched filetypes.');
     end
     
     % Verify the data type and add it to the format code
-    I = strcmpi( this.format, this.sfds.formats(:,1) );
-    if ~any( I )
-      error('soundfile:fopen:invaliddatatype',...
-        'Invalid datatype. Valid data types are:\n%s', listdatatypes(this) );
-    end
+    propertyvalidator( this, 'fopen', 'datatype', this.datatype );
+    I = strcmpi( this.datatype, this.sfds.datatypes(:,1) );
     dtf = this.sfds.datatypes{I,2};
     if numel(dtf) ~= 1
       error('soundfile:fopen:wrongnumdatatypesfound','Incorrect number of matched datatypes.');
     end
     
     % Verify both the rate and number of channels are > 0
-    if floor(this.rate) <= 0
-      error('soundfile:fopen:invalidrate','Sample rate must be > 0');
-    end
-    if floor(this.channels) <= 0
-      error('soundfile:fopen:invalidchannels','Number of channels must be > 0');
-    end
+    propertyvalidator( this, 'fopen', 'rate', this.rate );
+    propertyvalidator( this, 'fopen', 'channels', this.channels );
     
     % Finally, open the file for writing
     this.sfo = sndfile_interface( this.sfds.cmd.new, this.sfds.mode.write, ...

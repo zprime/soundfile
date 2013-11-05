@@ -20,8 +20,14 @@ function set( this, varargin )
     prop = varargin{ii};
     value = varargin{ii};
     
+    % Check data types
+    if ~( iscell(prop) || ischar(prop) )
+      error('soundfile:set:PropertyNotCellorString','Property must be a string (or a cell of strings)');
+    end
+    
     % Allow multiple entries in a cell
     if iscell(prop)
+      assert( iscell(value), 'When property is a cell, value must be a cell as well.' );
       if numel(prop) ~= numel(value)
         error('soundfile:set:WrongSizedCellPair','When using cell property inputs, the corresponding value input must be the same size.');
       end

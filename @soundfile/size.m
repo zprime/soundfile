@@ -1,20 +1,24 @@
 % Return the size of the file in [ channels, frames ]
 %
 % Usage:
-% c = s.size;
 % c = size(s);
+% c = size(s,dim);
 %
 % v0.1 2013-11-05
 %
 % Copyright (c) 2013, Zebb Prime
 % License appended to source
 
-function s = size(this)
+function s = size(this,dim)
   % If not open, return an error
   if isempty( this.sfo )
     error('soundfile:size:notOpen','File not open');
   else
     s = [ this.channels, sndfile_interface( this.sfds.cmd.frames, this.sfo ) ];
+    if nargin == 2
+      assert( any( dim==[1 2] ), 'dim can only be 1 or 2' );
+      s = s(dim);
+    end
   end
 end
 

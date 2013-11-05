@@ -68,37 +68,21 @@ classdef soundfile
       
       % Parse all inputs using inputParser
       ip = inputParser;
-      ip.addRequired( 'filename', @ischar );
-      ip.addParamValue( 'mode', 'r', @(x) any( strcmpi(x,{'r','w'}) ) );
-      ip.addParamValue( 'filetype', 'wav', @ischar );
-      ip.addParamValue( 'datatype', 'double', @ischar );
-      ip.addParamValue( 'channels', 0, @(x) isscalar(x) && isnumeric(x) && isreal(x) );
-      ip.addParamValue( 'rate', 0, @(x) isscalar(x) && isnumeric(x) && isreal(x) );
+      ip.addRequired( 'filename', @(x) propertyvalidator( this, 'soundfile','filename',x) );
+      ip.addParamValue( 'mode', 'r', @(x) propertyvalidator( this, 'soundfile','mode',x) );
+      ip.addParamValue( 'filetype', 'wav', @(x) propertyvalidator( this, 'soundfile','filetype',x) );
+      ip.addParamValue( 'datatype', 'pcm_16', @(x) propertyvalidator( this, 'soundfile','datatype',x) );
+      ip.addParamValue( 'channels', 2, @(x) propertyvalidator( this, 'soundfile','channels',x) );
+      ip.addParamValue( 'rate', 44100, @(x) propertyvalidator( this, 'soundfile','rate',x) );
       ip.parse( varargin{:} );
       
+      % Assign values
       this.filename = ip.Results.filename;
-      this.mode = ip.Results.mode;
       this.filetype = ip.Results.filetype;
       this.datatype = ip.Results.datatype;
+      this.mode = ip.Results.mode;
       this.channels = ip.Results.channels;
       this.rate = ip.Results.rate;
-      
-      % Helper isdefault function for inputParser
-      isdefault = @(x) any( strcmpi( ip.UsingDefaults, x ) );
-      
-      % Further validate any manually entered fields.
-      if ~isdefault( 'filetype' )
-        if ~any( strcmpi( this.filetype, this.sfds.filetypes(:,1) ) )
-          error('soundfile:soundfile:invalidfiletype',...
-            'Invalid filetype. Valid file types are:\n%s', listfiletypes(this) );
-        end
-      end
-      if ~isdefault( 'datatype' )
-        if ~any( strcmpi( this.format, this.sfds.formats(:,1) ) )
-          error('soundfile:soundfile:invaliddatatype',...
-            'Invalid datatype. Valid data formats are:\n%s', listdatatypes(this) );
-        end
-      end
       
     end
     
@@ -117,19 +101,20 @@ classdef soundfile
     status = fseek( sfh, offset, origin );
     count = ftell( sfh );                       %done
     message = ferror( sfh );                    %done
-    set( sfh, sval );
+    set( sfh, property, value );
     value = get( sfh, property );               %done
     types = listfiletypes( sfh );               %done
     types = listdatatypes( sfh );               %done
     disp( sfh );                                %done
-    s = size( sfh );                            %done
+    s = size( sfh, dim )                        %done
     n = numel( sfh );                           %done
     l = length( sfh );                          %done
   end
   
-  % Private methods (c++ calls)
+  % Private methods
   methods (Hidden = true)
-    varargout = sndfile_interface( varargin )
+    propertyvalidator( sfh, caller, property, value );    %done
+    varargout = sndfile_interface( varargin );            %done
   end
 end
 

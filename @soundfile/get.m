@@ -18,7 +18,7 @@ function value = get( this, prop )
     if ~strcmpi( prop, publicprops )
       error('soundfile:get:UnknownProperty','Unknown property %s.',prop);
     end
-    value = this.(prop);
+    value = this.(lower(prop));
   end
 end
 
