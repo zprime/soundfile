@@ -115,7 +115,7 @@ classdef soundfile
     count = fwrite( sfh, Y );
     fclose( sfh );                              %done
     status = fseek( sfh, offset, origin );
-    count = ftell( sfh );
+    count = ftell( sfh );                       %done
     message = ferror( sfh );                    %done
     set( sfh, sval );
     gval = get( sfh );
