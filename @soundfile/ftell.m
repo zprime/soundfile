@@ -10,7 +10,10 @@
 % License appended to source
 
 function c = ftell( this )
-  c = this.fpos;
+  if isempty( this.sfo )
+    error('soundfile:ftell:NotOpen','Can not tell since the file is closed');
+  end
+  c = sndfile_interface( this.sfds.cmd.seek, this.sfo, 0, this.sfds.seek_cur );
 end
 
 % Copyright (c) 2013, Zebb Prime

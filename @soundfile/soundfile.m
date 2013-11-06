@@ -36,9 +36,6 @@ classdef soundfile
     sfds;
     % SoundFile handle (private)
     sfo = [];
-    % Index to where we are in the file, since libsndfile doesn't seem to
-    % have a ftell command.
-    fpos = 0;
   end
   
   % Private but visible properties

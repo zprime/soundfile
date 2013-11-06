@@ -35,8 +35,13 @@ if ~any(Io)
   error('soundfile:fseek:UnknownOrigin','Origin must either -1, 0, 1, or ''bof'',''cof'',''eof''.');
 end
 
-% Assuming C seek values doen't change, this will be fine...
-C_ORG = [0 1 2];  % 0 for SEEK_SET, 1 for SEEK_CUR, 2 for SEEK_END
+% Look up C seek valus
+if Io(1); origin = this.sfds.seek_set;
+elseif Io(2); origin = this.sfds.seek_cur;
+elseif Io(3); origin = this.sfds.seek_end;
+else
+  error('soundfile:fseek:UnknownIO','Something strange has happened. Probably a bug.');
+end
 
 % Offset
 assert( isnumeric(offset) && isreal(offset) && isscalar(offset) && isfinite(offset), ...
@@ -45,11 +50,11 @@ assert( isnumeric(offset) && isreal(offset) && isscalar(offset) && isfinite(offs
 % Make sure we're not going outside the file
 l = length(this);
 switch C_ORG(Io)
-  case 0 % Seek from origin
+  case this.sfds.seek_set
     org = 0;
-  case 1 % Seek from current position
-    org = this.fpos;
-  case 2 % Seek from end of file
+  case this.sfds.seek_cur
+    org = this.ftell;
+  case this.sfds.seek_end
     org = l;
   otherwise
     error('fseek:origin:NotInList','Something went wrong (most likely a bug), and the origin wasn''t found');
@@ -59,8 +64,7 @@ assert( offset+org<=l, 'Offset is bad - after end-of-file.' );
 
 
 % Seek
-this.fpos = sndfile_interface( this.sfds.cmd.seek, this.fso, offset, origin );
-position = this.fpos;
+position = sndfile_interface( this.sfds.cmd.seek, this.fso, offset, origin ); 
 
 % Check for errors
 if sndfile_interface( this.sfo, this.sfds.cmd.error )
