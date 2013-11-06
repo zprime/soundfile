@@ -14,6 +14,10 @@ function sfds = gen_datastructures( sndlibpath )
   [sfds.mask,sfds.filetypes,sfds.datatypes,sfds.endiantypes,sfds.mode] ...
       = gen_formats( sndlibpath );
   sfds.cmd = gen_commands;
+  % Statically set the seek constants for now
+  sfds.seek_set = 0;
+  sfds.seek_cur = 1;
+  sfds.seek_end = 2;
   return;
 end
 
