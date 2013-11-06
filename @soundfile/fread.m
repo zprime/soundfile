@@ -1,5 +1,9 @@
 % Read from the soundfile
 %
+% Usage:
+% Y = s.fread( numframes );
+% Y = fread( s, numframes );
+%
 % v0.1 2013-11-05
 %
 % Copyright (c) 2013, Zebb Prime
@@ -11,17 +15,25 @@ function Y = fread( this, numframes )
     error('soundfile:fread:FileNotOpen','Can not read because the file is closed.');
   end
   
+  % If no input arguments are given, read the whole file.
+  if nargin==1
+    numframes=inf;
+  end
+  
   assert( isnumeric(numframes) && isscalar(numframes) && isreal(numframes) && (numframes>0), ...
     'Number of frames to read must be numeric, real, scalar and greater than zero' );
+  
+  % If numframes is greater than how much is left, reduce it to what is
+  % left
+  numframes = min( this.length() - this.ftell(), numframes );
   
   % Read the data
   Y = snfile_interface( this.sfds.cmd.read, this.sfo, numframes );
   
   % Check for errors
-      % Check for errors
-    if sndfile_interface( this.sfo, this.sfds.cmd.error )
-      error('soundfile:fopen:interfaceErr', this.ferror );
-    end
+  if sndfile_interface( this.sfo, this.sfds.cmd.error )
+    error('soundfile:fread:interfaceErr', this.ferror );
+  end
 end
 
 % Copyright (c) 2013, Zebb Prime

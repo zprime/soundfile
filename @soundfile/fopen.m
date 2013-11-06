@@ -80,7 +80,7 @@ switch lower(this.mode)
     
     % Check for errors
     if sndfile_interface( this.sfo, this.sfds.cmd.error )
-      error('soundfile:fopen:interfaceErr', sndfile_interface( this.sfo, this.sfds.cmd.strerr ) );
+      error('soundfile:fopen:interfaceErr', this.ferror );
     end
     
   otherwise
