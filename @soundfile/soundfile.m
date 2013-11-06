@@ -92,7 +92,7 @@ classdef soundfile
     
     % External methods (m files)
     fopen( sfh, mode );                         %done
-    Y = fread( sfh, size, format );
+    Y = fread( sfh, size );                     %done
     count = fwrite( sfh, Y );
     fclose( sfh );                              %done
     status = fseek( sfh, offset, origin );      %done
