@@ -20,6 +20,11 @@ function Y = fread( this, numframes )
     numframes=inf;
   end
   
+  % Check to make sure we are in the right mode.
+  if strcmpi( this.mode, 'w' )
+    error('soundfile:fread:WriteMode','Can not read in write mode.');
+  end
+  
   assert( isnumeric(numframes) && isscalar(numframes) && isreal(numframes) && (numframes>0), ...
     'Number of frames to read must be numeric, real, scalar and greater than zero' );
   
