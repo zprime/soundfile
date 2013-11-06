@@ -28,14 +28,14 @@
 %
 % Copyright (c) 2013, Zebb Prime
 % License appended to source
-classdef soundfile
+classdef soundfile < handle
   
   % Private and hidden properties
   properties ( Hidden = true, SetAccess = private )
     % SoundFile data structure (contains command and format codes)
     sfds;
     % SoundFile handle (private)
-    sfo = 0;
+    sfo;
   end
   
   % Private but visible properties
@@ -54,7 +54,7 @@ classdef soundfile
     
     % Constructor method
     function this = soundfile( varargin )
-      this.sfo = 0;
+      this.sfo = uint64(0);
       
       % Load the data structure into the object
       temp = load( [fileparts( mfilename('fullpath') ),filesep,'sfds.mat'] );
@@ -89,7 +89,6 @@ classdef soundfile
     function delete( this )
       if this.sfo ~= 0;
         fclose( this );
-        this.sfo = 0;
       end
     end
     

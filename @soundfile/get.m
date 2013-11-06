@@ -10,9 +10,12 @@
 % License appended to source
 
 function value = get( this, prop )
+  if nargin==1
+    error('soundfile:get:NotEnoughInputs','Exactly 1 non-self input required');
+  end
   if iscell( prop )
     % Recursion FTW
-    value = cellfun( this.get, prop );
+    value = cellfun( @(x) this.get(x), prop, 'UniformOutput', false );
   else
     publicprops = properties(this);
     if ~strcmpi( prop, publicprops )

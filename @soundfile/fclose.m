@@ -18,7 +18,7 @@ function fclose(this)
   
   % Issue the close command, and delete the object handle
   this.sndfile_interface( this.sfds.cmd.del );
-  this.sfo = 0;
+  this.sfo = uint64(0);
 end
 
 % Copyright (c) 2013, Zebb Prime

@@ -30,10 +30,10 @@ function Y = fread( this, numframes )
   
   % If numframes is greater than how much is left, reduce it to what is
   % left
-  numframes = min( this.length() - this.ftell(), numframes );
+  numframes = floor( min( this.length() - this.ftell(), numframes ) );
   
   % Read the data
-  Y = this.snfile_interface( this.sfds.cmd.read, numframes );
+  Y = this.sndfile_interface( this.sfds.cmd.read, numframes );
   
   % Check for errors
   if this.sndfile_interface( this.sfds.cmd.error )

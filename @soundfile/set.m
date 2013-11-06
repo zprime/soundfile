@@ -18,7 +18,7 @@ function set( this, varargin )
   
   for ii=1:2:numel(varargin)
     prop = varargin{ii};
-    value = varargin{ii};
+    value = varargin{ii+1};
     
     % Check data types
     if ~( iscell(prop) || ischar(prop) )
@@ -32,7 +32,7 @@ function set( this, varargin )
         error('soundfile:set:WrongSizedCellPair','When using cell property inputs, the corresponding value input must be the same size.');
       end
       % Recursion FTW
-      cellfun( this.set, prop, value );
+      cellfun( @(a,b) this.set(a,b), prop, value, 'UniformOutput', false );
     else
       % Time to look at actually setting the properties
       publicprops = properties(this);

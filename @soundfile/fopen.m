@@ -33,7 +33,7 @@ end
 switch lower(this.mode)
   case 'r'
     % Open the file for reading
-    this.sfo = this.sndfile_interface( this.sfds.cmd.new, this.sfds.mode.read, 0, 0, 0 );
+    this.sfo = this.sndfile_interface( this.sfds.cmd.new, this.filename, this.sfds.mode.read, 0, 0, 0 );
     
     % Check for errors
     if this.sndfile_interface( this.sfds.cmd.error )
@@ -41,14 +41,13 @@ switch lower(this.mode)
     end
     
     % Read in the file data
-    this.fpos = 0;
     this.rate = this.sndfile_interface( this.sfds.cmd.rate );
     this.channels = this.sndfile_interface( this.sfds.cmd.channels );
     format = this.sndfile_interface( this.sfds.cmd.format );
     I = bitand( format, this.sfds.mask.type ) == [this.sfds.filetypes{:,2}];
-    this.filetype = this.sfds.filetypes{I,2};
+    this.filetype = this.sfds.filetypes{I,1};
     I = bitand( format, this.sfds.mask.sub ) == [this.sfds.datatypes{:,2}];
-    this.datatype = this.sfds.datatypes{I,2};
+    this.datatype = this.sfds.datatypes{I,1};
     
   case 'w'
     % Verify all properties before calling the library
@@ -75,7 +74,7 @@ switch lower(this.mode)
     propertyvalidator( this, 'fopen', 'channels', this.channels );
     
     % Finally, open the file for writing
-    this.sfo = this.sndfile_interface( this.sfds.cmd.new, this.sfds.mode.write, ...
+    this.sfo = this.sndfile_interface( this.sfds.cmd.new, this.filename, this.sfds.mode.write, ...
       ftf+dtf, this.channels, this.rate );
     
     % Check for errors

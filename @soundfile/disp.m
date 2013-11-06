@@ -13,11 +13,13 @@ function disp( this )
   fprintf(1,'File name: %s\n', this.filename );
   fprintf(1,'File type: %s\n', this.filetype );
   fprintf(1,'Data type: %s\n', this.datatype );
-  fprintf(1,'Mode: %s\n', this.mode );
+  fprintf(1,'Channels:  %i\n', this.channels );
+  fprintf(1,'Rate:      %i\n', this.rate );
+  fprintf(1,'Mode:      %s\n', this.mode );
   if this.sfo == 0
-    fprintf(1,'Status: closed\n');
+    fprintf(1,'Status:    closed\n');
   else
-    fprintf(1,'Status: open\n');
+    fprintf(1,'Status:    open\n');
   end
 end
 

@@ -17,7 +17,7 @@
 
 function position = fseek( this, offset, origin )
 % Firstly make sure the file is open
-if this.fso == 0
+if this.sfo == 0
   error('soundfile:fseek:FileClosed','Can not seek since file is closed.');
 end
 
@@ -49,7 +49,7 @@ assert( isnumeric(offset) && isreal(offset) && isscalar(offset) && isfinite(offs
 
 % Make sure we're not going outside the file
 l = length(this);
-switch C_ORG(Io)
+switch origin
   case this.sfds.seek_set
     org = 0;
   case this.sfds.seek_cur

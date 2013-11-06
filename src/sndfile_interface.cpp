@@ -26,7 +26,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   if( nrhs < 1 )
     mexErrMsgTxt("Interface requires at least one input.\n");
   
-  SndfileHandle *snfi = convertMat2Ptr<SndfileHandle>( mxGetProperty( prhs[0], 0, "sfo" ) );
+  SndfileHandle *snfi = NULL;
+  // Retrieve the object if this isn't a new call.
+  if( (int)mxGetScalar( prhs[1] ) != SFI_CMD_NEW )
+  {
+    snfi = convertMat2Ptr<SndfileHandle>( mxGetProperty( prhs[0], 0, "sfo" ) );
+  }
   
   double cout;
   
@@ -37,21 +42,21 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     case SFI_CMD_NEW:
       // Check parameters
       if( nlhs != 1 ) mexErrMsgTxt("NEW: One output expected");
-      if( nrhs != 6 ) mexErrMsgTxt("NEW: 6 input parameters expected");
+      if( nrhs != 7 ) mexErrMsgTxt("NEW: 7 input parameters expected");
       char fname[2048];
-      if( mxGetString( prhs[1], fname, 2048 ) )
+      if( mxGetString( prhs[2], fname, 2048 ) )
         mexErrMsgTxt("NEW: Error extracting filename.");
       plhs[0] = convertPtr2Mat<SndfileHandle>(
-        new SndfileHandle ( fname, (int)mxGetScalar( prhs[2] ),
-          (int)mxGetScalar( prhs[3] ), (int)mxGetScalar( prhs[4] ),
-          (int)mxGetScalar( prhs[5] ) )      
+        new SndfileHandle ( fname, (int)mxGetScalar( prhs[3] ),
+          (int)mxGetScalar( prhs[4] ), (int)mxGetScalar( prhs[5] ),
+          (int)mxGetScalar( prhs[6] ) )      
         );
       break;
     
     /* Delete the SndfileHandle object */
     case SFI_CMD_DEL:
       // Destroy the C++ object
-      destroyObject<SndfileHandle>(prhs[1]);
+      destroyObject<SndfileHandle>( mxGetProperty( prhs[0], 0, "sfo" ) );
       break;
       
     /* Read from the file */  
@@ -93,7 +98,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     
     /* Seek in the file */  
     case SFI_CMD_SEEK:
-      if( nrhs != 2 ) mexErrMsgTxt("SEEK: 2 input parameters expected");
+      if( nrhs != 4 ) mexErrMsgTxt("SEEK: 4 input parameters expected");
       if( nlhs > 1 ) mexErrMsgTxt("SEEK: Too many output arguments");
       
       cout = (double)snfi->seek( (int)mxGetScalar(prhs[2]), (int)mxGetScalar(prhs[3]) );
@@ -103,8 +108,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     /* Issue command to the Soundfile backend */  
     case SFI_CMD_COMMAND:
       mexErrMsgTxt("COMMAND: Unimplemented");
-      // Retrieve class instance
-      snfi = convertMat2Ptr<SndfileHandle>(prhs[1]);
       break;
       
     /* Retrieve the error status of the file */  

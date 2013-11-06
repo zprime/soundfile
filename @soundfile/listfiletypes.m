@@ -19,7 +19,7 @@ function types = listfiletypes(this)
     types = this.sfds.filetypes(:,[1,3]);
   else
     for ii=1:size(this.sfds.filetypes,1)
-      fprintf(1,'%6s | %s\n', this.sfds.filetypes{ii,1}, this.sfds.filetypes{ii,3} );
+      fprintf(1,'%10s | %s\n', this.sfds.filetypes{ii,1}, this.sfds.filetypes{ii,3} );
     end
   end
 end
