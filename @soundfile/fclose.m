@@ -5,20 +5,20 @@
 % fclose(s);
 % fopen(s,mode);
 %
-% v0.1 2013-11-05
+% v0.1.1 2013-11-06
 %
 % Copyright (c) 2013, Zebb Prime
 % License appended to source
 
 function fclose(this)
   % State check
-  if isempty( this.sfo )
+  if this.sfo == 0
     error('soundfile:fclose:AlreadyClosed','File is already closed');
   end
   
   % Issue the close command, and delete the object handle
-  sndfile_interface( this.sfds.cmd.del, this.sfo );
-  this.sfo = [];
+  this.sndfile_interface( this.sfds.cmd.del );
+  this.sfo = 0;
 end
 
 % Copyright (c) 2013, Zebb Prime

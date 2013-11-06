@@ -11,13 +11,13 @@
 % When writing, file properties should be set beforehand, either during
 % object creation or using set.
 %
-% v0.1 2013-11-05
+% v0.1.1 2013-11-06
 %
 % Copyright (c) 2013, Zebb Prime
 % License appended to source
 function fopen( this, mode )
 % State checking
-if ~isempty( this.sfo )
+if this.sfo ~= 0
   error('soundfile:fopen:AlreadyOpen','File is already open.');
 end
 
@@ -33,18 +33,18 @@ end
 switch lower(this.mode)
   case 'r'
     % Open the file for reading
-    this.sfo = sndfile_interface( this.sfds.cmd.new, this.sfds.mode.read, 0, 0, 0 );
+    this.sfo = this.sndfile_interface( this.sfds.cmd.new, this.sfds.mode.read, 0, 0, 0 );
     
     % Check for errors
-    if sndfile_interface( this.sfo, this.sfds.cmd.error )
-      error('soundfile:fopen:interfaceErr', sndfile_interface( this.sfo, this.sfds.cmd.strerr ) );
+    if this.sndfile_interface( this.sfds.cmd.error )
+      error('soundfile:fopen:interfaceErr', this.ferror );
     end
     
     % Read in the file data
     this.fpos = 0;
-    this.rate = sndfile_interface( this.sfo, this.sfds.cmd.rate );
-    this.channels = sndfile_interface( this.sfo, this.sfds.cmd.channels );
-    format = sndfile_interface( this.sfo, this.sfds.cmd.format );
+    this.rate = this.sndfile_interface( this.sfds.cmd.rate );
+    this.channels = this.sndfile_interface( this.sfds.cmd.channels );
+    format = this.sndfile_interface( this.sfds.cmd.format );
     I = bitand( format, this.sfds.mask.type ) == [this.sfds.filetypes{:,2}];
     this.filetype = this.sfds.filetypes{I,2};
     I = bitand( format, this.sfds.mask.sub ) == [this.sfds.datatypes{:,2}];
@@ -75,11 +75,11 @@ switch lower(this.mode)
     propertyvalidator( this, 'fopen', 'channels', this.channels );
     
     % Finally, open the file for writing
-    this.sfo = sndfile_interface( this.sfds.cmd.new, this.sfds.mode.write, ...
+    this.sfo = this.sndfile_interface( this.sfds.cmd.new, this.sfds.mode.write, ...
       ftf+dtf, this.channels, this.rate );
     
     % Check for errors
-    if sndfile_interface( this.sfo, this.sfds.cmd.error )
+    if this.sndfile_interface( this.sfds.cmd.error )
       error('soundfile:fopen:interfaceErr', this.ferror );
     end
     

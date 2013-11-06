@@ -4,18 +4,18 @@
 % msg = s.ferror;
 % msg = ferror(s);
 %
-% v0.1 2013-11-05
+% v0.1.1 2013-11-06
 %
 % Copyright (c) 2013, Zebb Prime
 % License appended to source
 
 function msg = ferror(this)
   % If file isn't open, return "No error."
-  if isempty( this.sfo )
+  if this.sfo == 0
     msg = 'No error.';
   else
     % Otherwise query the sndfile library
-    msg = sndfile_interface( this.sfds.cmd.strerr, this.sfo );
+    msg = this.sndfile_interface( this.sfds.cmd.strerr );
   end
 end
 

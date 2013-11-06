@@ -4,17 +4,17 @@
 % l = s.length;
 % l = length(s);
 %
-% v0.1 2013-11-05
+% v0.1.1 2013-11-06
 %
 % Copyright (c) 2013, Zebb Prime
 % License appended to source
 
 function l = length(this)
   % If not open, return an error
-  if isempty( this.sfo )
+  if this.sfo == 0
     error('soundfile:size:notOpen','File not open');
   else
-    l = sndfile_interface( this.sfds.cmd.frames, this.sfo );
+    l = this.sndfile_interface( this.sfds.cmd.frames );
   end
 end
 

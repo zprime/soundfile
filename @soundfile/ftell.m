@@ -4,16 +4,16 @@
 % c = ftell( s );
 % c = s.ftell;
 %
-% v0.1 2013-11-05
+% v0.1.1 2013-11-06
 %
 % Copyright (c) 2013, Zebb Prime
 % License appended to source
 
 function c = ftell( this )
-  if isempty( this.sfo )
+  if this.sfo == 0
     error('soundfile:ftell:NotOpen','Can not tell since the file is closed');
   end
-  c = sndfile_interface( this.sfds.cmd.seek, this.sfo, 0, this.sfds.seek_cur );
+  c = this.sndfile_interface( this.sfds.cmd.seek, 0, this.sfds.seek_cur );
 end
 
 % Copyright (c) 2013, Zebb Prime

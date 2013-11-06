@@ -4,17 +4,17 @@
 % n = s.numel;
 % n = numel(s);
 %
-% v0.1 2013-11-05
+% v0.1.1 2013-11-06
 %
 % Copyright (c) 2013, Zebb Prime
 % License appended to source
 
 function n = numel(this)
   % If not open, return an error
-  if isempty( this.sfo )
+  if this.sfo == 0
     error('soundfile:numel:notOpen','File not open');
   else
-    n = this.channels*sndfile_interface( this.sfds.cmd.frames, this.sfo );
+    n = this.channels*this.sndfile_interface( this.sfds.cmd.frames );
   end
 end
 

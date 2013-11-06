@@ -35,7 +35,7 @@ classdef soundfile
     % SoundFile data structure (contains command and format codes)
     sfds;
     % SoundFile handle (private)
-    sfo = [];
+    sfo = 0;
   end
   
   % Private but visible properties
@@ -54,6 +54,8 @@ classdef soundfile
     
     % Constructor method
     function this = soundfile( varargin )
+      this.sfo = 0;
+      
       % Load the data structure into the object
       temp = load( [fileparts( mfilename('fullpath') ),filesep,'sfds.mat'] );
       this.sfds = temp.sfds;
@@ -85,8 +87,9 @@ classdef soundfile
     
     % Destructor method
     function delete( this )
-      if ~isempty( this.sfo );
+      if this.sfo ~= 0;
         fclose( this );
+        this.sfo = 0;
       end
     end
     

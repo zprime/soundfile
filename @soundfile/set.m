@@ -7,7 +7,7 @@
 
 function set( this, varargin )
   % Check to make sure the file is closed
-  if ~isempty( this.sfo )
+  if this.sfo ~= 0
     error('soundfile:set:FileOpen','Cannot use set while file is open.');
   end
   

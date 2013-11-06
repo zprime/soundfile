@@ -4,14 +4,14 @@
 % Y = s.fread( numframes );
 % Y = fread( s, numframes );
 %
-% v0.1 2013-11-05
+% v0.1.1 2013-11-06
 %
 % Copyright (c) 2013, Zebb Prime
 % License appended to source
 
 function Y = fread( this, numframes )
   % Make sure the file is open
-  if isempty( this.sfo )
+  if this.sfo == 0
     error('soundfile:fread:FileNotOpen','Can not read because the file is closed.');
   end
   
@@ -33,10 +33,10 @@ function Y = fread( this, numframes )
   numframes = min( this.length() - this.ftell(), numframes );
   
   % Read the data
-  Y = snfile_interface( this.sfds.cmd.read, this.sfo, numframes );
+  Y = this.snfile_interface( this.sfds.cmd.read, numframes );
   
   % Check for errors
-  if sndfile_interface( this.sfo, this.sfds.cmd.error )
+  if this.sndfile_interface( this.sfds.cmd.error )
     error('soundfile:fread:interfaceErr', this.ferror );
   end
 end

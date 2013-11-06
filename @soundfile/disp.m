@@ -14,7 +14,7 @@ function disp( this )
   fprintf(1,'File type: %s\n', this.filetype );
   fprintf(1,'Data type: %s\n', this.datatype );
   fprintf(1,'Mode: %s\n', this.mode );
-  if isempty(this.sfo)
+  if this.sfo == 0
     fprintf(1,'Status: closed\n');
   else
     fprintf(1,'Status: open\n');

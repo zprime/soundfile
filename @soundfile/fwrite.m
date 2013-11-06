@@ -13,7 +13,7 @@
 
 function count = fwrite( this, Y )
   % Make sure the file is open
-  if isempty( this.sfo )
+  if this.sfo == 0
     error('soundfile:fwrite:FileNotOpen','Can not write because the file is closed.');
   end  
 
@@ -38,11 +38,11 @@ function count = fwrite( this, Y )
   end
   
   % Now we can write!
-  count = sndfile_interface( this.sfds.cmd.write, this.sfo, Y );
+  count = this.sndfile_interface( this.sfds.cmd.write, Y );
   count = count/this.size(1);
   
   % Check for errors
-  if sndfile_interface( this.sfo, this.sfds.cmd.error )
+  if this.sndfile_interface( this.sfds.cmd.error )
     error('soundfile:fwrite:interfaceErr', this.ferror );
   end
 end

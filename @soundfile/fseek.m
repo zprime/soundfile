@@ -10,14 +10,14 @@
 %   0 or 'cof' for current position in file
 %   1 or 'eof' for the end of file
 %
-% v0.1 2013-11-05
+% v0.1.1 2013-11-06
 %
 % Copyright (c) 2013, Zebb Prime
 % License appended to source
 
 function position = fseek( this, offset, origin )
 % Firstly make sure the file is open
-if isempty( this.fso )
+if this.fso == 0
   error('soundfile:fseek:FileClosed','Can not seek since file is closed.');
 end
 
@@ -64,11 +64,11 @@ assert( offset+org<=l, 'Offset is bad - after end-of-file.' );
 
 
 % Seek
-position = sndfile_interface( this.sfds.cmd.seek, this.fso, offset, origin ); 
+position = this.sndfile_interface( this.sfds.cmd.seek, offset, origin ); 
 
 % Check for errors
-if sndfile_interface( this.sfo, this.sfds.cmd.error )
-  error('soundfile:fseek:interfaceErr', sndfile_interface( this.sfo, this.sfds.cmd.strerr ) );
+if this.sndfile_interface( this.sfds.cmd.error )
+  error('soundfile:fseek:interfaceErr', this.ferror );
 end
 
 end

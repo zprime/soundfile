@@ -9,7 +9,7 @@
  *
  * The method names and corresponding values are given in sndfile_interface.hpp
  *
- * v0.1 2013-11-05
+ * v0.1.1 2013-11-06
  *
  * Copyright (c) 2013, Zebb Prime
  * License information appended to source.
@@ -26,12 +26,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   if( nrhs < 1 )
     mexErrMsgTxt("Interface requires at least one input.\n");
   
-  SndfileHandle *snfi = NULL;
+  SndfileHandle *snfi = convertMat2Ptr<SndfileHandle>( mxGetProperty( prhs[0], 0, "sfo" ) );
   
   double cout;
   
   // Switch to the appropriate command
-  switch( (int)mxGetScalar( prhs[0] ) )
+  switch( (int)mxGetScalar( prhs[1] ) )
   {
     /* Create a new SndfileHandle object */
     case SFI_CMD_NEW:
@@ -58,8 +58,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     case SFI_CMD_READ:
       if( nrhs != 3 ) mexErrMsgTxt("READ: 3 input parameters expected");
       if( nlhs > 2 ) mexErrMsgTxt("READ: Too many output arguments");
-      // Retrieve class instance
-      snfi = convertMat2Ptr<SndfileHandle>(prhs[1]);
       
       plhs[0] = mxCreateDoubleMatrix( snfi->channels(), mxGetScalar(prhs[2]), mxREAL );
       cout = snfi->read( (double *)mxGetPr( plhs[0] ), (int)( snfi->channels() * mxGetScalar(prhs[2]) ) );
@@ -70,8 +68,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     case SFI_CMD_WRITE:
       if( nrhs != 3 ) mexErrMsgTxt("WRITE: 3 input parameters expected");
       if( nlhs > 1 ) mexErrMsgTxt("WRITE: Too many output arguments");
-      // Retrieve class instance
-      snfi = convertMat2Ptr<SndfileHandle>(prhs[1]);
       
       switch( mxGetClassID(prhs[2]) )
       {
@@ -99,8 +95,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     case SFI_CMD_SEEK:
       if( nrhs != 2 ) mexErrMsgTxt("SEEK: 2 input parameters expected");
       if( nlhs > 1 ) mexErrMsgTxt("SEEK: Too many output arguments");
-      // Retrieve class instance
-      snfi = convertMat2Ptr<SndfileHandle>(prhs[1]);
       
       cout = (double)snfi->seek( (int)mxGetScalar(prhs[2]), (int)mxGetScalar(prhs[3]) );
       if( nlhs == 1 ) plhs[0] = mxCreateDoubleScalar( cout );
@@ -117,8 +111,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     case SFI_CMD_ERROR:
       if( nrhs != 2 ) mexErrMsgTxt("ERROR: 2 input parameters expected");
       if( nlhs > 1 ) mexErrMsgTxt("ERROR: Too many output arguments");
-      // Retrieve class instance
-      snfi = convertMat2Ptr<SndfileHandle>(prhs[1]);
       
       plhs[0] = mxCreateDoubleScalar( (double)snfi->error() );
       break;
@@ -127,8 +119,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     case SFI_CMD_STRERR:
       if( nrhs != 2 ) mexErrMsgTxt("STRERR: 2 input parameters expected");
       if( nlhs > 1 ) mexErrMsgTxt("STRERR: Too many output arguments");
-      // Retrieve class instance
-      snfi = convertMat2Ptr<SndfileHandle>(prhs[1]);
       
       plhs[0] = mxCreateString( snfi->strError() );
       break;
@@ -137,8 +127,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     case SFI_CMD_FRAMES:
       if( nrhs != 2 ) mexErrMsgTxt("FRAMES: 2 input parameters expected");
       if( nlhs > 1 ) mexErrMsgTxt("FRAMES: Too many output arguments");
-      // Retrieve class instance
-      snfi = convertMat2Ptr<SndfileHandle>(prhs[1]);
       
       plhs[0] = mxCreateDoubleScalar( (double)snfi->frames() );
       break;
@@ -147,8 +135,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     case SFI_CMD_FORMAT:
       if( nrhs != 2 ) mexErrMsgTxt("FORMAT: 2 input parameters expected");
       if( nlhs > 1 ) mexErrMsgTxt("FORMAT: Too many output arguments");
-      // Retrieve class instance
-      snfi = convertMat2Ptr<SndfileHandle>(prhs[1]);
       
       plhs[0] = mxCreateDoubleScalar( (double)snfi->format() );
       break;
@@ -157,8 +143,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     case SFI_CMD_CHANNELS:
       if( nrhs != 2 ) mexErrMsgTxt("CHANNELS: 2 input parameters expected");
       if( nlhs > 1 ) mexErrMsgTxt("CHANNELS: Too many output arguments");
-      // Retrieve class instance
-      snfi = convertMat2Ptr<SndfileHandle>(prhs[1]);
       
       plhs[0] = mxCreateDoubleScalar( (double)snfi->channels() );
       break;
@@ -167,8 +151,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     case SFI_CMD_RATE:
       if( nrhs != 2 ) mexErrMsgTxt("RATE: 2 input parameters expected");
       if( nlhs > 1 ) mexErrMsgTxt("RATE: Too many output arguments");
-      // Retrieve class instance
-      snfi = convertMat2Ptr<SndfileHandle>(prhs[1]);
       
       plhs[0] = mxCreateDoubleScalar( (double)snfi->samplerate() );
       break;
