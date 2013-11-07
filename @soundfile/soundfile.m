@@ -39,7 +39,7 @@ classdef soundfile < handle
   end
   
   % Private but visible properties
-  properties( SetAccess = private )
+  properties( SetAccess = private, Access = private )
     % Properties of the file
     filename;
     mode;

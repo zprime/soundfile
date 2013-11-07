@@ -33,7 +33,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     snfi = convertMat2Ptr<SndfileHandle>( mxGetProperty( prhs[0], 0, "sfo" ) );
   }
   
-  double cout;
+  sf_count_t cout;
   
   // Switch to the appropriate command
   switch( (int)mxGetScalar( prhs[1] ) )
@@ -47,9 +47,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
       if( mxGetString( prhs[2], fname, 2048 ) )
         mexErrMsgTxt("NEW: Error extracting filename.");
       plhs[0] = convertPtr2Mat<SndfileHandle>(
-        new SndfileHandle ( fname, (int)mxGetScalar( prhs[3] ),
-          (int)mxGetScalar( prhs[4] ), (int)mxGetScalar( prhs[5] ),
-          (int)mxGetScalar( prhs[6] ) )      
+        new SndfileHandle ( fname, (sf_count_t)mxGetScalar( prhs[3] ),
+          (sf_count_t)mxGetScalar( prhs[4] ), (sf_count_t)mxGetScalar( prhs[5] ),
+          (sf_count_t)mxGetScalar( prhs[6] ) )      
         );
       break;
     
@@ -65,7 +65,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
       if( nlhs > 2 ) mexErrMsgTxt("READ: Too many output arguments");
       
       plhs[0] = mxCreateDoubleMatrix( snfi->channels(), mxGetScalar(prhs[2]), mxREAL );
-      cout = snfi->read( (double *)mxGetPr( plhs[0] ), (int)( snfi->channels() * mxGetScalar(prhs[2]) ) );
+      cout = snfi->read( (double *)mxGetPr( plhs[0] ), ( snfi->channels() * (sf_count_t)mxGetScalar(prhs[2]) ) );
       if( nlhs==2 ) plhs[1] = mxCreateDoubleScalar( cout );
       break;
     
@@ -77,16 +77,16 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
       switch( mxGetClassID(prhs[2]) )
       {
         case mxINT16_CLASS:
-          cout = (double)snfi->write( (short *)mxGetPr( prhs[2] ), mxGetNumberOfElements( prhs[2] ) );
+          cout = snfi->write( (short *)mxGetPr( prhs[2] ), (sf_count_t)mxGetNumberOfElements( prhs[2] ) );
           break;
         case mxINT32_CLASS:
-          cout = (double)snfi->write( (int *)mxGetPr( prhs[2] ), mxGetNumberOfElements( prhs[2] ) );
+          cout = snfi->write( (int *)mxGetPr( prhs[2] ), (sf_count_t)mxGetNumberOfElements( prhs[2] ) );
           break;
         case mxSINGLE_CLASS:
-          cout = (double)snfi->write( (float *)mxGetPr( prhs[2] ), mxGetNumberOfElements( prhs[2] ) );
+          cout = snfi->write( (float *)mxGetPr( prhs[2] ), (sf_count_t)mxGetNumberOfElements( prhs[2] ) );
           break;
         case mxDOUBLE_CLASS:
-          cout = (double)snfi->write( (double *)mxGetPr( prhs[2] ), mxGetNumberOfElements( prhs[2] ) );
+          cout = snfi->write( (double *)mxGetPr( prhs[2] ), (sf_count_t)mxGetNumberOfElements( prhs[2] ) );
           break;
         default:
           mexErrMsgTxt("WRITE: Unsupported input data type");
@@ -101,7 +101,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
       if( nrhs != 4 ) mexErrMsgTxt("SEEK: 4 input parameters expected");
       if( nlhs > 1 ) mexErrMsgTxt("SEEK: Too many output arguments");
       
-      cout = (double)snfi->seek( (int)mxGetScalar(prhs[2]), (int)mxGetScalar(prhs[3]) );
+      cout = snfi->seek( (sf_count_t)mxGetScalar(prhs[2]), (sf_count_t)mxGetScalar(prhs[3]) );
       if( nlhs == 1 ) plhs[0] = mxCreateDoubleScalar( cout );
       break;
     
@@ -131,7 +131,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
       if( nrhs != 2 ) mexErrMsgTxt("FRAMES: 2 input parameters expected");
       if( nlhs > 1 ) mexErrMsgTxt("FRAMES: Too many output arguments");
       
-      plhs[0] = mxCreateDoubleScalar( (double)snfi->frames() );
+      plhs[0] = mxCreateDoubleScalar( snfi->frames() );
       break;
     
     /* Get the format code of the file */
