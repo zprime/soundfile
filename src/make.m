@@ -13,19 +13,22 @@ function make
 if nargin == 0
   if ispc
     sflibpath = 'C:\Program Files\Mega-Nerd\libsndfile';
+    libname = 'libsndfile-1';
   elseif ismac
-    sflibpath = '/usr/local/';
+    sflibpath = '/usr/local';
+    libname = 'libsndfile';
   else
     sflibpath = '/usr';
+    libname = 'libsndfile1';
   end
 end
 
 fname = {'sndfile_interface.cpp'};
 
 %% Build the mex file
-mex(['-I','"',sflibpath,filesep,'include','"'],...
-  ['-L','"',sflibpath,filesep,'lib','"'],...
-  '-lsndfile','-largeArrayDims',fname{1} );
+mex(['-I',sflibpath,filesep,'include'],...
+  ['-L',sflibpath,filesep,'lib'],...
+  ['-l',libname],'-largeArrayDims',fname{1} );
 
 %% Generate the data structures used for the commands
 sfds = gen_datastructures( sflibpath );
