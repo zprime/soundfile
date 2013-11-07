@@ -31,7 +31,7 @@
 classdef soundfile < handle
   
   % Private and hidden properties
-  properties ( Hidden = true, SetAccess = private )
+  properties ( Hidden = true, SetAccess = private, GetAccess = private )
     % SoundFile data structure (contains command and format codes)
     sfds;
     % SoundFile handle (private)
@@ -39,7 +39,7 @@ classdef soundfile < handle
   end
   
   % Private but visible properties
-  properties( SetAccess = private, Access = private )
+  properties( SetAccess = private, GetAccess = public )
     % Properties of the file
     filename;
     mode;
