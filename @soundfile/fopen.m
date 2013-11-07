@@ -37,7 +37,10 @@ switch lower(this.mode)
     
     % Check for errors
     if this.sndfile_interface( this.sfds.cmd.error )
-      error('soundfile:fopen:interfaceErr', this.ferror );
+      errstr = this.ferror;
+      this.sndfile_interface( this.sfds.cmd.del );
+      this.sfo = 0;
+      error('soundfile:fopen:interfaceErr', errstr );
     end
     
     % Read in the file data
@@ -79,7 +82,10 @@ switch lower(this.mode)
     
     % Check for errors
     if this.sndfile_interface( this.sfds.cmd.error )
-      error('soundfile:fopen:interfaceErr', this.ferror );
+      errstr = this.ferror;
+      this.sndfile_interface( this.sfds.cmd.del );
+      this.sfo = 0;
+      error('soundfile:fopen:interfaceErr', errstr );
     end
     
   otherwise
