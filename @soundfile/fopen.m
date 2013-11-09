@@ -11,7 +11,7 @@
 % When writing, file properties should be set beforehand, either during
 % object creation or using set.
 %
-% v0.1.1 2013-11-06
+% v0.1.2 2013-11-09
 %
 % Copyright (c) 2013, Zebb Prime
 % License appended to source
@@ -41,13 +41,22 @@ switch lower(this.mode)
     end
     
     % Read in the file data
-    this.rate = this.sndfile_interface( this.sfds.cmd.rate );
-    this.channels = this.sndfile_interface( this.sfds.cmd.channels );
+    rate = this.sndfile_interface( this.sfds.cmd.rate );
+    channels = this.sndfile_interface( this.sfds.cmd.channels );
     format = this.sndfile_interface( this.sfds.cmd.format );
     I = bitand( format, this.sfds.mask.type ) == [this.sfds.filetypes{:,2}];
-    this.filetype = this.sfds.filetypes{I,1};
+    filetype = this.sfds.filetypes{I,1};
     I = bitand( format, this.sfds.mask.sub ) == [this.sfds.datatypes{:,2}];
-    this.datatype = this.sfds.datatypes{I,1};
+    datatype = this.sfds.datatypes{I,1};
+    
+    % Now set the file data (need to work around open test).
+    tempsfo = this.sfo;
+    this.sfo = 0;
+    this.rate = rate;
+    this.channels = channels;
+    this.filetype = filetype;
+    this.datatype = datatype;
+    this.sfo = tempsfo;
     
   case 'w'
     % Verify file type and get the format code

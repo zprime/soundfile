@@ -35,11 +35,11 @@ classdef soundfile < handle
     % SoundFile data structure (contains command and format codes)
     sfds;
     % SoundFile handle (private)
-    sfo;
+    sfo = 0;
   end
   
   % Private but visible properties
-  properties( SetAccess = private, GetAccess = public, Dependent = true )
+  properties( SetAccess = private, GetAccess = public )
     % Properties of the file
     filename;
     mode;
@@ -123,6 +123,15 @@ classdef soundfile < handle
       assert( isnumeric(value) && isscalar(value) && isreal(value) && isfinite(value) && (floor(value)>0), ...
         'soundfile:set:RateNotValid','Rate must be a real, scalar integer greater than zero.' );
       this.rate = floor( value );
+    end
+    
+    % Save method. Prevent saving of an open file
+    function b = saveobj(this)
+      if this.sfo ~= 0
+        warning('soundfile:saveobj:FileIsOpen','Should not save an open soundfile object. Automatically closing.');
+        this.fclose;
+      end
+      b = this;
     end
     
     % External methods (m files)
