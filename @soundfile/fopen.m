@@ -21,11 +21,8 @@ if this.sfo ~= 0
   error('soundfile:fopen:AlreadyOpen','File is already open.');
 end
 
-% Input checking
-if nargin == 1
-  this.mode;
-else
-  propertyvalidator( this, 'fopen', 'mode', mode );
+% Input checking (implicit in set.mode)
+if nargin == 2
   this.mode = mode;
 end
 
@@ -53,11 +50,7 @@ switch lower(this.mode)
     this.datatype = this.sfds.datatypes{I,1};
     
   case 'w'
-    % Verify all properties before calling the library
-    propertyvalidator( this, 'fopen', 'filename', this.filename );
-    
     % Verify file type and get the format code
-    propertyvalidator( this, 'fopen', 'filetype', this.filetype );
     I = strcmpi( this.filetype, this.sfds.filetypes(:,1) );
     ftf = this.sfds.filetypes{I,2};
     if numel(ftf) ~= 1
@@ -65,16 +58,11 @@ switch lower(this.mode)
     end
     
     % Verify the data type and add it to the format code
-    propertyvalidator( this, 'fopen', 'datatype', this.datatype );
     I = strcmpi( this.datatype, this.sfds.datatypes(:,1) );
     dtf = this.sfds.datatypes{I,2};
     if numel(dtf) ~= 1
       error('soundfile:fopen:wrongnumdatatypesfound','Incorrect number of matched datatypes.');
     end
-    
-    % Verify both the rate and number of channels are > 0
-    propertyvalidator( this, 'fopen', 'rate', this.rate );
-    propertyvalidator( this, 'fopen', 'channels', this.channels );
     
     % Finally, open the file for writing
     this.sfo = this.sndfile_interface( this.sfds.cmd.new, this.filename, this.sfds.mode.write, ...

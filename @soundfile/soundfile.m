@@ -31,7 +31,7 @@
 classdef soundfile < handle
   
   % Private and hidden properties
-  properties ( Hidden = true, SetAccess = private, GetAccess = private )
+  properties ( Hidden = true, Access = private )
     % SoundFile data structure (contains command and format codes)
     sfds;
     % SoundFile handle (private)
@@ -39,7 +39,7 @@ classdef soundfile < handle
   end
   
   % Private but visible properties
-  properties( SetAccess = private, GetAccess = public )
+  properties( SetAccess = private, GetAccess = public, Dependent = true )
     % Properties of the file
     filename;
     mode;
@@ -51,7 +51,6 @@ classdef soundfile < handle
   
   % Public methods (m-file calls)
   methods
-    
     % Constructor method
     function this = soundfile( varargin )
       this.sfo = uint64(0);
@@ -67,12 +66,12 @@ classdef soundfile < handle
       
       % Parse all inputs using inputParser
       ip = inputParser;
-      ip.addRequired( 'filename', @(x) propertyvalidator( this, 'soundfile','filename',x) );
-      ip.addParamValue( 'mode', 'r', @(x) propertyvalidator( this, 'soundfile','mode',x) );
-      ip.addParamValue( 'filetype', 'wav', @(x) propertyvalidator( this, 'soundfile','filetype',x) );
-      ip.addParamValue( 'datatype', 'pcm_16', @(x) propertyvalidator( this, 'soundfile','datatype',x) );
-      ip.addParamValue( 'channels', 2, @(x) propertyvalidator( this, 'soundfile','channels',x) );
-      ip.addParamValue( 'rate', 44100, @(x) propertyvalidator( this, 'soundfile','rate',x) );
+      ip.addRequired( 'filename' );
+      ip.addParamValue( 'mode', 'r' );
+      ip.addParamValue( 'filetype', 'wav' );
+      ip.addParamValue( 'datatype', 'pcm_16' );
+      ip.addParamValue( 'channels', 2 );
+      ip.addParamValue( 'rate', 44100 );
       ip.parse( varargin{:} );
       
       % Assign values
@@ -92,6 +91,40 @@ classdef soundfile < handle
       end
     end
     
+    % Property set methods
+    function set.filename( this, value )
+      assert( this.sfo==0, 'soundfile:set:FileOpen', 'Can not set filename while the file is open.');
+      assert( ischar(value), 'soundfile:set:NameNotString', 'File name must be a string.');
+      this.filename = value;
+    end
+    function set.mode( this, value )
+      assert( this.sfo==0, 'soundfile:set:FileOpen', 'Can not set mode while the file is open.');
+      assert( any( strcmpi( value, {'r','w'} ) ), 'soundfile:set:InvalidMode', 'Mode must be either ''r'' or ''w'' for read or write respectively.' );
+      this.mode = lower(value);
+    end
+    function set.filetype( this, value )
+      assert( this.sfo==0, 'soundfile:set:FileOpen', 'Can not set file type while the file is open.' );
+      assert( any( strcmpi( value, this.sfds.filetypes(:,1) ) ), 'soundfile:setfiletype:InvalidFileType', 'Invalid filetype. Valid file types are:\n%s', listfiletypes(this) );
+      this.filetype = lower(value);
+    end
+    function set.datatype( this, value )
+      assert( this.sfo==0, 'soundfile:set:FileOpen', 'Can not set data type while the file is open.' );
+      assert( any( strcmpi( value, this.sfds.datatypes(:,1) ) ), 'soundfile:setdatatype:InvalidDataType', 'Invalid datatype. Valid data types are:\n%s', listdatatypes(this) );
+      this.datatype = lower(value);
+    end
+    function set.channels( this, value )
+      assert( this.sfo==0, 'soundfile:set:FileOpen', 'Can not set the number of channels while the file is open.' );
+      assert( isnumeric(value) && isscalar(value) && isreal(value) && isfinite(value) && (floor(value)>0), ...
+        'soundfile:set:ChannelsNotValid','Channels must be real, scalar integer greater than zero.' );
+      this.channels = floor( value );
+    end
+    function set.rate( this, value )
+      assert( this.sfo==0, 'soundfile:set:FileOpen', 'Can not set the number of channels while the file is open.' );
+      assert( isnumeric(value) && isscalar(value) && isreal(value) && isfinite(value) && (floor(value)>0), ...
+        'soundfile:set:RateNotValid','Rate must be a real, scalar integer greater than zero.' );
+      this.rate = floor( value );
+    end
+    
     % External methods (m files)
     fopen( sfh, mode );                         %done
     Y = fread( sfh, size );                     %done
@@ -100,8 +133,6 @@ classdef soundfile < handle
     status = fseek( sfh, offset, origin );      %done
     count = ftell( sfh );                       %done
     message = ferror( sfh );                    %done
-    set( sfh, varargin );                       %done
-    value = get( sfh, property );               %done
     types = listfiletypes( sfh );               %done
     types = listdatatypes( sfh );               %done
     disp( sfh );                                %done
@@ -112,7 +143,6 @@ classdef soundfile < handle
   
   % Private methods
   methods (Hidden = true)
-    propertyvalidator( sfh, caller, property, value );    %done
     varargout = sndfile_interface( varargin );            %done
   end
 end
