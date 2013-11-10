@@ -104,12 +104,12 @@ classdef soundfile < handle
     end
     function set.filetype( this, value )
       assert( this.sfo==0, 'soundfile:set:FileOpen', 'Can not set file type while the file is open.' );
-      assert( any( strcmpi( value, this.sfds.filetypes(:,1) ) ), 'soundfile:setfiletype:InvalidFileType', 'Invalid filetype. Valid file types are:\n%s', listfiletypes(this) );
+      assert( any( strcmpi( value, this.sfds.filetypes(:,1) ) ), 'soundfile:setfiletype:InvalidFileType', 'Invalid filetype. Valid file types are:\n%s', evalc('this.listfiletypes') );
       this.filetype = lower(value);
     end
     function set.datatype( this, value )
       assert( this.sfo==0, 'soundfile:set:FileOpen', 'Can not set data type while the file is open.' );
-      assert( any( strcmpi( value, this.sfds.datatypes(:,1) ) ), 'soundfile:setdatatype:InvalidDataType', 'Invalid datatype. Valid data types are:\n%s', listdatatypes(this) );
+      assert( any( strcmpi( value, this.sfds.datatypes(:,1) ) ), 'soundfile:setdatatype:InvalidDataType', 'Invalid datatype. Valid data types are:\n%s', evalc('this.listdatatypes') );
       this.datatype = lower(value);
     end
     function set.channels( this, value )
