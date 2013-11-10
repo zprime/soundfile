@@ -1,23 +1,36 @@
 % Read from the soundfile
 %
 % Usage:
-% Y = s.fread( numframes );
-% Y = fread( s, numframes );
+% Y = s.fread( numframes, format );
+% Y = fread( s, numframes, format );
 %
-% v0.1.1 2013-11-06
+% numframes - optional input, number of frames to read
+% format - optional read data type, 'double', 'single', 'int32', 'int16'
+%
+% v0.1.2 2013-11-10
 %
 % Copyright (c) 2013, Zebb Prime
 % License appended to source
 
-function Y = fread( this, numframes )
+function Y = fread( this, numframes, format )
   % Make sure the file is open
   if this.sfo == 0
     error('soundfile:fread:FileNotOpen','Can not read because the file is closed.');
   end
   
   % If no input arguments are given, read the whole file.
-  if nargin==1
+  if nargin<2
     numframes=inf;
+  end
+  
+  % Check the format
+  if nargin==3
+    fI = find( strcmpi( format, {'double','single','int32','int16'} ) );
+  else
+    fI = 1;
+  end
+  if isempty( fI )
+    error('soundfile:fread:InvalidFormat','Format must be either double (default), single, int32, or int16.');
   end
   
   % Check to make sure we are in the right mode.
@@ -33,7 +46,7 @@ function Y = fread( this, numframes )
   numframes = floor( min( this.length() - this.ftell(), numframes ) );
   
   % Read the data
-  Y = this.sndfile_interface( this.sfds.cmd.read, numframes );
+  Y = this.sndfile_interface( this.sfds.cmd.read, numframes, fI );
   
   % Check for errors
   if this.sndfile_interface( this.sfds.cmd.error )

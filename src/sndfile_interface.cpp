@@ -47,9 +47,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
       if( mxGetString( prhs[2], fname, 2048 ) )
         mexErrMsgTxt("NEW: Error extracting filename.");
       plhs[0] = convertPtr2Mat<SndfileHandle>(
-        new SndfileHandle ( fname, (sf_count_t)mxGetScalar( prhs[3] ),
-          (sf_count_t)mxGetScalar( prhs[4] ), (sf_count_t)mxGetScalar( prhs[5] ),
-          (sf_count_t)mxGetScalar( prhs[6] ) )      
+        new SndfileHandle ( fname, (int)mxGetScalar( prhs[3] ),
+          (int)mxGetScalar( prhs[4] ), (int)mxGetScalar( prhs[5] ),
+          (int)mxGetScalar( prhs[6] ) )      
         );
       break;
     
@@ -61,11 +61,32 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
       
     /* Read from the file */  
     case SFI_CMD_READ:
-      if( nrhs != 3 ) mexErrMsgTxt("READ: 3 input parameters expected");
+      if( nrhs != 4 ) mexErrMsgTxt("READ: 4 input parameters expected");
       if( nlhs > 2 ) mexErrMsgTxt("READ: Too many output arguments");
       
-      plhs[0] = mxCreateDoubleMatrix( snfi->channels(), mxGetScalar(prhs[2]), mxREAL );
-      cout = snfi->read( (double *)mxGetPr( plhs[0] ), ( snfi->channels() * (sf_count_t)mxGetScalar(prhs[2]) ) );
+      switch( (int)mxGetScalar(prhs[3]) )
+      {
+        case 1: // double
+          plhs[0] = mxCreateDoubleMatrix( snfi->channels(), mxGetScalar(prhs[2]), mxREAL );
+          cout = snfi->read( (double *)mxGetPr( plhs[0] ), ( snfi->channels() * (sf_count_t)mxGetScalar(prhs[2]) ) );
+          break;
+        case 2: // single
+          plhs[0] = mxCreateNumericMatrix( snfi->channels(), mxGetScalar(prhs[2]), mxSINGLE_CLASS, mxREAL);
+          cout = snfi->read( (float *)mxGetPr( plhs[0] ), ( snfi->channels() * (sf_count_t)mxGetScalar(prhs[2]) ) );
+          break;
+        case 3: // int32
+          plhs[0] = mxCreateNumericMatrix( snfi->channels(), mxGetScalar(prhs[2]), mxINT32_CLASS, mxREAL);
+          cout = snfi->read( (int *)mxGetPr( plhs[0] ), ( snfi->channels() * (sf_count_t)mxGetScalar(prhs[2]) ) );
+        break;
+        case 4: // int16
+          plhs[0] = mxCreateNumericMatrix( snfi->channels(), mxGetScalar(prhs[2]), mxINT16_CLASS, mxREAL);
+          cout = snfi->read( (short *)mxGetPr( plhs[0] ), ( snfi->channels() * (sf_count_t)mxGetScalar(prhs[2]) ) );
+        break;
+        default:
+          mexErrMsgTxt("READ: Wrong format");
+      }
+      
+      
       if( nlhs==2 ) plhs[1] = mxCreateDoubleScalar( cout );
       break;
     

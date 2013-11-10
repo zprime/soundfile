@@ -13,13 +13,13 @@ function make
 if nargin == 0
   if ispc
     sflibpath = 'C:\Program Files\Mega-Nerd\libsndfile';
-    libname = 'libsndfile-1';
+    libname = 'sndfile-1';
   elseif ismac
     sflibpath = '/usr/local';
-    libname = 'libsndfile';
+    libname = 'sndfile';
   else
     sflibpath = '/usr';
-    libname = 'libsndfile1';
+    libname = 'sndfile1';
   end
 end
 
